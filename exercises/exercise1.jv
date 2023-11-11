@@ -9,6 +9,7 @@ pipeline AirportsPipeline {
     
 
     block AirportsHttpExtractor oftype HttpExtractor {
+
         url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/rhein-kreis-neuss-flughafen-weltweit/exports/csv";
     }
 
@@ -17,6 +18,7 @@ pipeline AirportsPipeline {
     block AirportsCSVInterpreter oftype CSVInterpreter { 
 	delimiter: ';';
     }
+
 
     block AirportsTableInterpreter oftype TableInterpreter {
         header: true;
@@ -34,13 +36,21 @@ pipeline AirportsPipeline {
             "column_8" oftype decimal,
             "column_9" oftype decimal,
             "column_10" oftype decimal,
-            "column_11" oftype text,
+            "column_11" oftype Column_11_check,
             "column_12" oftype text,
             "geo_punkt" oftype text
         ];
     }
 
+	valuetype Column_11_check oftype text {
+   	 // 10. Valuetypes can be further refined by providing constraints.
+   	 constraints: [
+                ExactlyOneCharacters,
+    		];
+	}
 
+constraint ExactlyOneCharacters on text:
+    value.length == 1;
 
     block AirportsLoader oftype SQLiteLoader {
         table: "airports";
