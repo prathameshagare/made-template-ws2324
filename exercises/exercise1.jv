@@ -34,23 +34,14 @@ pipeline AirportsPipeline {
 	    "column_6" oftype text,
             "column_7" oftype decimal,
             "column_8" oftype decimal,
-            "column_9" oftype decimal,
+            "column_9" oftype integer,
             "column_10" oftype decimal,
-            "column_11" oftype Column_11_check,
+            "column_11" oftype text,
             "column_12" oftype text,
             "geo_punkt" oftype text
         ];
     }
 
-	valuetype Column_11_check oftype text {
-   	 // 10. Valuetypes can be further refined by providing constraints.
-   	 constraints: [
-                ExactlyOneCharacters,
-    		];
-	}
-
-constraint ExactlyOneCharacters on text:
-    value.length == 1;
 
     block AirportsLoader oftype SQLiteLoader {
         table: "airports";
