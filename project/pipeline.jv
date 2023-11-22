@@ -1,0 +1,76 @@
+pipeline RoadAccidentPipeline {
+
+
+    DeathdataFeedExtractor
+        ->DeathdataTextFileInterpreter
+        ->DeathdataCSVInterpreter
+        ->DeathDataTableInterpreter
+        ->DeathdataLoader;
+    
+    RoadAccidentFeedExtractor
+        ->RoadAccidentTextFileInterpreter
+        ->RoadAccidentCSVInterpreter
+        ->RoadAccidentTableInterpreter
+        ->RoadAccidentLoader;
+
+    block DeathdataTextFileInterpreter oftype TextFileInterpreter { }
+
+    block DeathdataCSVInterpreter oftype CSVInterpreter { 
+	delimiter: ';';
+    }
+    
+    block RoadAccidentTextFileInterpreter oftype TextFileInterpreter { }
+
+    block RoadAccidentCSVInterpreter oftype CSVInterpreter { 
+	delimiter: ';';
+    }
+
+    // 3. We define a series of HttpExtractors that each pull data
+    // from an HTTP endpoint
+    block DeathdataFeedExtractor oftype HttpExtractor {
+        url: "https://github.com/prathameshagare/made-template-ws2324/blob/e59ff496998fe27b52530ca5b137cde4e1f88bfc/data/Death%20Data.csv";
+    }
+
+    block RoadAccidentFeedExtractor oftype HttpExtractor {
+        url: "https://github.com/prathameshagare/made-template-ws2324/blob/e59ff496998fe27b52530ca5b137cde4e1f88bfc/data/Accident%20Data.csv";
+    }
+
+	
+    block DeathDataTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+
+            "Number" oftype text,
+	    "city" oftype text,
+	    "code" oftype text,
+	    "type" oftype text,
+	    "Insgesamt" oftype text,
+            "männlich" oftype text,
+            "weiblich" oftype text
+        ];
+    }
+
+    block RoadAccidentTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "Year" oftype text,
+            "Month" oftype text,
+	    "Insgesamt" oftype text,
+	    "innerorts" oftype text,
+	    "außerorts (ohne Autobahnen)" oftype text,
+	    "auf Autobahnen" oftype text
+        ];
+    }
+
+    block DeathdataLoader oftype SQLiteLoader {
+        table: "deathdata";
+        file: "./deathdata.sqlite";
+    }
+
+    block RoadAccidentLoader oftype SQLiteLoader {
+        table: "accident";
+        file: "./accident.sqlite";
+    }
+
+
+}
