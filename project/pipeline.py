@@ -1,29 +1,65 @@
 import pandas as pd
-from sqlalchemy import create_engine
-import os.path
-from os import path
-import sqlite3
+import requests
 
-# The dataets are stored in the repository. 
-dataset1 = pd.read_csv('https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/23211-03d_00.csv')
-dataset2 = pd.read_csv('https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/46241-06i_00.csv')
+# Function to download the dataset
+def download_dataset(url, file_name):
+    response = requests.get(url)
+    
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        with open(file_name, 'wb') as file:
+            file.write(response.content)
+        print(f"Dataset downloaded successfully as {file_name}")
+    else:
+        print(f"Failed to download dataset. Status code: {response.status_code}")
 
-# The dataset are stored in Pandas DataFrame to be later stored in SQLLite Database
-data1 = pd.DataFrame(dataset1)
-data2 = pd.DataFrame(dataset2)
+# Function to perform data transformations and fix errors
+def transform_and_fix_errors(input_file, output_file):
+    # Read the dataset into a DataFrame
+    df = pd.read_csv(input_file)
 
-# Connect to SQLite database
-conn = sqlite3.connect('/Users/akshatkhara/Desktop/Study Material/Semester 3/Methods of Advance Data Engineering/made-template-WS2324/data/indian_road_accident.db')
+    # Perform your data transformations and error fixes here
+    # Example: Fixing missing values
+    df.fillna(value=0, inplace=True)
 
-# Use the to_sql method to write the DataFrame to a SQLite table
-data1.to_sql('accident_india', conn, index=False, if_exists='replace')
+    # Save the transformed dataset
+    df.to_csv(output_file, index=False)
+    print(f"Transformed dataset saved as {output_file}")
 
-#Optional selceting the query using PANDAS function to check whether the data is stored in the database.
-# query = "SELECT * FROM accident_india"
-# df = pd.read_sql_query(query, conn)
-# print(df.head())
+# Function to perform data cleaning
+def clean_dataset(input_file, output_file):
+    # Read the dataset into a DataFrame
+    df = pd.read_csv(input_file)
 
-# Close the connection
-conn.close()
+    # Perform data cleaning operations
+    # Example: Drop duplicates
+    df.drop_duplicates(inplace=True)
 
+    # Save the cleaned dataset
+    df.to_csv(output_file, index=False)
+    print(f"Cleaned dataset saved as {output_file}")
 
+if __name__ == "__main__":
+    # URLs of the datasets to download
+    death_road_accident = "https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/23211-03d_00.csv"
+    accident = "https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/46241-06i_00.csv"
+
+    # Local file names
+    death_road_accident_data = "death_road_accident_data.csv"
+    accident_data = "accident_data.csv"
+    death_road_accident_raw_data = "death_road_accident_data_raw.csv"
+    accident_raw_data = "accident_data_raw.csv"
+    modified_data_1 = "cleaned_dataset1.csv"
+    modified_data_2 = "cleaned_dataset2.csv"
+
+    # Step 1: Download the datasets
+    download_dataset(death_road_accident, death_road_accident_data)
+    download_dataset(accident, accident_data)
+
+    # Step 2: Transform the datasets and fix errors
+    transform_and_fix_errors(death_road_accident_data, death_road_accident_raw_data)
+    transform_and_fix_errors(accident_data, accident_raw_data)
+
+    # Step 3: Clean the datasets
+    clean_dataset(death_road_accident_raw_data, modified_data_1)
+    clean_dataset(accident_raw_data, modified_data_2)
