@@ -40,12 +40,15 @@ def is_valid_ifopt(value):
 df = df[df['IFOPT'].apply(is_valid_ifopt)]
 df = df.dropna()  # Drop rows with empty cells
 
+#  3: changing datatype from float to integer for Betreiber_Nr column
 
-#  3: Defining the SQLite database connection and create an SQLAlchemy engine
+df['Betreiber_Nr'] =  df['Betreiber_Nr'].astype(int)
+
+#  4: Defining the SQLite database connection and create an SQLAlchemy engine
 db_connection_str = 'sqlite:///trainstops.sqlite'
 engine = create_engine(db_connection_str)
 
-#  4: Writing the DataFrame to the SQLite database
+#  5: Writing the DataFrame to the SQLite database
 df.to_sql('trainstops', con=engine, index=False, if_exists='replace')
 
 # Close the engine
