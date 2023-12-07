@@ -43,15 +43,15 @@ block CarsTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [ 
             "date" oftype text,
-            "CIN" oftype CommunityIdentificationNumbers,
+            "CIN" oftype IFOPTType,
 	    "name" oftype text,
-	    "petrol" oftype Integercheck,
-	    "diesel" oftype Integercheck,
-	    "gas" oftype Integercheck,
-            "electro" oftype Integercheck,
-            "hybrid" oftype Integercheck,
-            "plugInHybrid" oftype Integercheck,
-            "others" oftype Integercheck
+	    "petrol" oftype text,
+	    "diesel" oftype text,
+	    "gas" oftype text,
+            "electro" oftype text,
+            "hybrid" oftype text,
+            "plugInHybrid" oftype text,
+            "others" oftype text
         ];
     }
 
@@ -62,6 +62,14 @@ valuetype CommunityIdentificationNumbers oftype text {
 
 constraint ExactlyFiveCharacters on text:
     value.length == 5;
+
+valuetype IFOPTType oftype text{
+    constraints: [IFOPTreg];
+}
+
+constraint IFOPTreg oftype RegexConstraint {
+    regex: /[0-9]{5}?(0\[0-9]{5})?/;
+}
 
 valuetype Integercheck oftype decimal {
     constraints: [
