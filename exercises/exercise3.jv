@@ -2,7 +2,6 @@ pipeline CarsPipeline {
 CarsHttpExtractor
 -> CarsTextFileInterpreter
 -> CarsCSVInterpreter
-//-> ColSelector
 -> RowDeleter
 -> ColumnDeleter
 -> ColumnWriter
@@ -14,12 +13,11 @@ url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.
 }
 
 block CarsTextFileInterpreter oftype TextFileInterpreter {
-encoding: "utf8";
+encoding: "ascii";
 }
 
 block CarsCSVInterpreter oftype CSVInterpreter {
 delimiter: ";";
-enclosing: '"';
 }
 
 
@@ -43,7 +41,7 @@ block CarsTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [ 
             "date" oftype text,
-            "CIN" oftype CommunityIdentificationNumbers,
+            "CIN" oftype CommunityIdentificationNumber,
 	    "name" oftype text,
 	    "petrol" oftype Integercheck,
 	    "diesel" oftype Integercheck,
@@ -55,24 +53,24 @@ block CarsTableInterpreter oftype TableInterpreter {
         ];
     }
 
-valuetype CommunityIdentificationNumbers oftype text {
-    // 10. Valuetypes can be further refined by providing constraints.
-    constraints: [ExactlyFiveCharacters];
-}
+    constraint ExactlyFiveChar oftype LengthConstraint {
+        minLength: 5;
+        maxLength: 5;
+    }
 
-constraint ExactlyFiveCharacters on text:
-    value.length == 5;
+    valuetype CommunityIdentificationNumber oftype text {
+        constraints: [ExactlyFiveChar];
+    }
 
-valuetype Integercheck oftype decimal {
-    constraints: [
-	GreaterThanZero
-	];
+valuetype Integercheck oftype integer {
+    constraints: [GreaterThanZero];
 }
 
 constraint GreaterThanZero oftype RangeConstraint{
-    lowerBound: 1;
-    lowerBoundInclusive: true;
+    lowerBound: 0;
+    lowerBoundInclusive: false;
 }
+
 
  block CarsLoader oftype SQLiteLoader {
         table: "cars";
