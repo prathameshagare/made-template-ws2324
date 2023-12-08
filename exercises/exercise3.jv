@@ -13,7 +13,7 @@ url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.
 }
 
 block CarsTextFileInterpreter oftype TextFileInterpreter {
-encoding: "ASCII";
+encoding: "utf8";
 }
 
 block CarsCSVInterpreter oftype CSVInterpreter {
