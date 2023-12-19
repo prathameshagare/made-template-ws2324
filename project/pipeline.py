@@ -16,7 +16,7 @@ def download_dataset(url, file_name):
 # Function to perform data transformations and fix errors
 def transform_and_fix_errors(input_file, output_file):
     # Read the dataset into a DataFrame
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file, encoding='latin-1', header=7, on_bad_lines='skip')
 
     # Perform your data transformations and error fixes here
     # Example: Fixing missing values
@@ -29,7 +29,7 @@ def transform_and_fix_errors(input_file, output_file):
 # Function to perform data cleaning
 def clean_dataset(input_file, output_file):
     # Read the dataset into a DataFrame
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file, encoding='latin-1', header=7, on_bad_lines='skip')
 
     # Perform data cleaning operations
     # Example: Drop duplicates
