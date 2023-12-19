@@ -1,0 +1,80 @@
+pipeline CarsPipeline {
+CarsHttpExtractor
+-> CarsTextFileInterpreter
+-> CarsCSVInterpreter
+-> RowDeleter
+-> ColumnDeleter
+-> ColumnWriter
+-> CarsTableInterpreter
+-> CarsLoader;
+
+block CarsHttpExtractor oftype HttpExtractor {
+url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv";
+}
+
+block CarsTextFileInterpreter oftype TextFileInterpreter {
+encoding: "latin2";
+}
+
+block CarsCSVInterpreter oftype CSVInterpreter {
+delimiter: ";";
+}
+
+
+
+
+block RowDeleter oftype RowDeleter {
+delete: [ row 1, row 2, row 3, row 4,row 5,row 6, row 484, row 485,row 486,row 487];
+}
+
+block ColumnDeleter oftype ColumnDeleter {
+delete: [ column D,	column E,	column F,	column G,	column H,	column I,	column J,	column K,	column L,	column N,	column O,	column P,	column Q,	column R,	column S,	column T,	column U,	column V,	column X,	column Y,	column Z,	column AA,	column AB,	column AC,	column AD,	column AE,	column AF,	column AH,	column AI,	column AJ,	column AK,	column AL,	column AM,	column AN,	column AO,	column AP,	column AR,	column AS,	column AT,	column AU,	column AV,	column AW,	column AX,	column AY,	column AZ,	column BB,	column BC,	column BD,	column BE,	column BF,	column BG,	column BH,	column BI,	column BJ,	column BL,	column BM,	column BN,	column BO,	column BP,	column BQ,	column BR,	column BS,	column BT,column BV,	column BW,	column BX,	column BY,	column BZ,	column CA,	column CB, 
+column CC,	column CD, column CE ];
+}
+
+block ColumnWriter oftype CellWriter {
+at: range A1:J1;
+write: ["date","CIN","name","petrol","diesel","gas","electro","hybrid","plugInHybrid","others"];
+}
+
+block CarsTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [ 
+            "date" oftype text,
+            "CIN" oftype CommunityIdentificationNumber,
+	    "name" oftype text,
+	    "petrol" oftype Integercheck,
+	    "diesel" oftype Integercheck,
+	    "gas" oftype Integercheck,
+            "electro" oftype Integercheck,
+            "hybrid" oftype Integercheck,
+            "plugInHybrid" oftype Integercheck,
+            "others" oftype Integercheck
+        ];
+    }
+
+    constraint ExactlyFiveChar oftype LengthConstraint {
+        minLength: 5;
+        maxLength: 5;
+    }
+
+    valuetype CommunityIdentificationNumber oftype text {
+        constraints: [ExactlyFiveChar];
+    }
+
+valuetype Integercheck oftype integer {
+    constraints: [GreaterThanZero];
+}
+
+constraint GreaterThanZero oftype RangeConstraint{
+    lowerBound: 0;
+    lowerBoundInclusive: false;
+}
+
+
+ block CarsLoader oftype SQLiteLoader {
+        table: "cars";
+        file: "./cars.sqlite";
+    }
+
+}
