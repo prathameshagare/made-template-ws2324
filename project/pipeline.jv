@@ -1,75 +1,56 @@
 pipeline RoadAccidentPipeline {
 
 
-    DeathdataFeedExtractor
-        ->DeathdataTextFileInterpreter
-        ->DeathdataCSVInterpreter
-        ->DeathDataTableInterpreter
-        ->DeathdataLoader;
+    AccidentdataFeedExtractor
+        -> AccidentdataTextFileInterpreter
+        -> AccidentdataCSVInterpreter
+	-> RowDeleter
+	-> ColumnWriter
+        -> AccidentDataTableInterpreter
+        -> AccidentdataLoader;
     
-    RoadAccidentFeedExtractor
-        ->RoadAccidentTextFileInterpreter
-        ->RoadAccidentCSVInterpreter
-        ->RoadAccidentTableInterpreter
-        ->RoadAccidentLoader;
 
-    block DeathdataTextFileInterpreter oftype TextFileInterpreter { }
-
-    block DeathdataCSVInterpreter oftype CSVInterpreter { 
-	delimiter: ';';
+    block AccidentdataTextFileInterpreter oftype TextFileInterpreter {
+	encoding: "latin2";
     }
+
+    block AccidentdataCSVInterpreter oftype CSVInterpreter {
+	delimiter: ";";
+    }
+
+
+    block RowDeleter oftype RowDeleter {
+	delete: [row 1, row 2, row 3, row 4,row 5,row 7, row 8,row 386,row 387,row 388];
+    }
+
+    block ColumnWriter oftype CellWriter {
+	at: range A1:F1;
+	write: ["year","Month","Insgesamt","innerorts","außerorts (ohne Autobahnen)","auf Autobahnen"];
+    }
+
     
-    block RoadAccidentTextFileInterpreter oftype TextFileInterpreter { }
 
-    block RoadAccidentCSVInterpreter oftype CSVInterpreter { 
-	delimiter: ';';
+    block AccidentdataFeedExtractor oftype HttpExtractor {
+	url: "https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/46241-06i_00.csv";
     }
-
-    // 3. We define a series of HttpExtractors that each pull data
-    // from an HTTP endpoint
-    block DeathdataFeedExtractor oftype HttpExtractor {
-        url: "https://github.com/prathameshagare/made-template-ws2324/blob/e59ff496998fe27b52530ca5b137cde4e1f88bfc/data/Death%20Data.csv";
-    }
-
-    block RoadAccidentFeedExtractor oftype HttpExtractor {
-        url: "https://github.com/prathameshagare/made-template-ws2324/blob/e59ff496998fe27b52530ca5b137cde4e1f88bfc/data/Accident%20Data.csv";
-    }
-
 	
-    block DeathDataTableInterpreter oftype TableInterpreter {
+    block AccidentDataTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
 
-            "Number" oftype text,
-	    "city" oftype text,
-	    "code" oftype text,
-	    "type" oftype text,
-	    "Insgesamt" oftype text,
-            "männlich" oftype text,
-            "weiblich" oftype text
+            "year" oftype integer,
+	    "Month" oftype text,
+	    "Insgesamt" oftype integer,
+	    "innerorts" oftype integer,
+	    "außerorts (ohne Autobahnen)" oftype integer,
+            "auf Autobahnen" oftype integer
         ];
     }
 
-    block RoadAccidentTableInterpreter oftype TableInterpreter {
-        header: true;
-        columns: [
-            "Year" oftype text,
-            "Month" oftype text,
-	    "Insgesamt" oftype text,
-	    "innerorts" oftype text,
-	    "außerorts (ohne Autobahnen)" oftype text,
-	    "auf Autobahnen" oftype text
-        ];
-    }
 
-    block DeathdataLoader oftype SQLiteLoader {
-        table: "deathdata";
-        file: "./deathdata.sqlite";
-    }
-
-    block RoadAccidentLoader oftype SQLiteLoader {
-        table: "accident";
-        file: "./accident.sqlite";
+    block AccidentdataLoader oftype SQLiteLoader {
+        table: "accidentdata";
+        file: "./data/accidentdata.sqlite";
     }
 
 
