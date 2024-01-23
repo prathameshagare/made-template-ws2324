@@ -93,13 +93,20 @@ pipeline RoadAccidentPipeline {
             "type" oftype text,
             "citycode" oftype text,
             "accidentType" oftype text,
-            "Total" oftype text,
-            "Male" oftype text,
-            "Female" oftype text
+            "Total" oftype Integercheck,
+            "Male" oftype Integercheck,
+            "Female" oftype Integercheck
         ];
     }
 
+	valuetype Integercheck oftype integer {
+    	constraints: [GreaterThanZero];
+	}
 
+	constraint GreaterThanZero oftype RangeConstraint{
+    		lowerBound: 0;
+    		lowerBoundInclusive: false;
+	}
     block DeathdataLoader oftype SQLiteLoader {
         table: "deathdata";
         file: "./data/deathdata.sqlite";
