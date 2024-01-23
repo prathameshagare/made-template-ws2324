@@ -1,31 +1,28 @@
 pipeline RoadAccidentPipeline {
 
-
     AccidentdataFeedExtractor
         -> AccidentdataTextFileInterpreter
         -> AccidentdataCSVInterpreter
-	-> RowDeleter
-	-> ColumnWriter
+        -> RowDeleter
+        -> ColumnWriter
         -> AccidentDataTableInterpreter
         -> AccidentdataLoader;
     
-
     block AccidentdataTextFileInterpreter oftype TextFileInterpreter {
-	encoding: "latin2";
+	    encoding: "latin2";
     }
 
     block AccidentdataCSVInterpreter oftype CSVInterpreter {
-	delimiter: ";";
+	    delimiter: ";";
     }
 
-
     block RowDeleter oftype RowDeleter {
-	delete: [row 1, row 2, row 3, row 4,row 5,row 7, row 8,row 386,row 387,row 388];
+	    delete: [row 1, row 2, row 3, row 4,row 5,row 7, row 8,row 386,row 387,row 388];
     }
 
     block ColumnWriter oftype CellWriter {
-	at: range A1:F1;
-	write: ["year","Month","Insgesamt","innerorts","außerorts (ohne Autobahnen)","auf Autobahnen"];
+        at: range A1:F1;
+        write: ["year","Month","Insgesamt","innerorts","außerorts (ohne Autobahnen)","auf Autobahnen"];
     }
 
     
@@ -53,5 +50,59 @@ pipeline RoadAccidentPipeline {
         file: "./data/accidentdata.sqlite";
     }
 
+
+    DeathdataFeedExtractor
+        -> DeathdataTextFileInterpreter
+        -> DeathdataMetaDataSelector
+        -> DeathdataCSVInterpreter
+        -> DeathdataColumnWriter
+        -> DeathDataTableInterpreter
+        -> DeathdataLoader;
+    
+
+    block DeathdataTextFileInterpreter oftype TextFileInterpreter {
+	encoding: "latin2";
+    }
+
+    block DeathdataMetaDataSelector oftype TextRangeSelector {
+        lineFrom: 7;
+        lineTo: 128107;
+    }
+
+    block DeathdataCSVInterpreter oftype CSVInterpreter {
+	    delimiter: ';';
+    }
+
+    block DeathdataColumnWriter oftype CellWriter {
+        at: range A1:H1;
+        write: ["year","numberid","city","citycode","accidentType","Total","Male","Female"];
+    }
+
+    
+
+    block DeathdataFeedExtractor oftype HttpExtractor {
+	    url: "https://www.landesdatenbank.nrw.de/ldbnrwws/downloader/00/tables/23211-03d_00.csv";
+    }
+	
+    block DeathDataTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "year" oftype integer,
+            "numberid" oftype integer,
+            "city" oftype text,
+            "type" oftype text,
+            "citycode" oftype text,
+            "accidentType" oftype text,
+            "Total" oftype text,
+            "Male" oftype text,
+            "Female" oftype text
+        ];
+    }
+
+
+    block DeathdataLoader oftype SQLiteLoader {
+        table: "deathdata";
+        file: "./data/deathdata.sqlite";
+    }
 
 }
