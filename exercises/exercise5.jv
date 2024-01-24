@@ -1,0 +1,73 @@
+pipeline StopsZipPipeline {
+
+    ZipGTFSExtractor
+        -> ZipStopArchiveInterpreter
+        -> ZipStopsFilePicker
+        -> ZipStopsTextFileInterpreter
+        -> ZipStopsCSVInterpreter
+        -> ZipStopsTableInterpreter
+        -> ZipStopsSQLiteLoader;
+
+    block ZipGTFSExtractor oftype HttpExtractor {
+        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
+    }
+
+    block ZipStopArchiveInterpreter oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+    block ZipStopsFilePicker oftype FilePicker {
+        path: "/stops.txt";
+    }
+
+    block ZipStopsTextFileInterpreter oftype TextFileInterpreter {
+        encoding: "utf8";
+    }
+
+    block ZipStopsCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+        enclosing: '"';
+    }
+
+    block ZipStopsTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "stop_id" oftype integer,
+            "stop_name" oftype text,
+            "stop_lat" oftype GeographicCoordianteValidation,
+            "stop_lon" oftype GeographicCoordianteValidation,
+            "zone_id" oftype SelectFilteredZone,
+        ];
+    }
+
+
+    valuetype GeographicCoordianteValidation oftype decimal {
+        constraints: [ValidGeographicCoordiante];
+    }
+
+    constraint ValidGeographicCoordiante oftype RangeConstraint {
+        lowerBound: -90;
+        lowerBoundInclusive: true;
+        upperBound: 90;
+        upperBoundInclusive: true;
+    }
+
+
+    valuetype SelectFilteredZone oftype integer {
+        constraints: [SelectZone2001];
+    }
+
+    constraint SelectZone2001 oftype RangeConstraint {
+        lowerBound: 2001;
+        lowerBoundInclusive: true;
+        upperBound: 2001;
+        upperBoundInclusive: true;
+    }
+
+    block ZipStopsSQLiteLoader oftype SQLiteLoader {
+        table: "stops";
+        file: "./gtfs.sqlite";
+    }
+
+
+}
