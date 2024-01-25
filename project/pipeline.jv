@@ -47,7 +47,7 @@ pipeline RoadAccidentPipeline {
 
     block AccidentdataLoader oftype SQLiteLoader {
         table: "accidentdata";
-        file: "./data/accidentdata.sqlite";
+        file: "../data/accidentdata.sqlite";
     }
 
 
@@ -109,7 +109,7 @@ pipeline RoadAccidentPipeline {
 	}
     block DeathdataLoader oftype SQLiteLoader {
         table: "deathdata";
-        file: "./data/deathdata.sqlite";
+        file: "../data/deathdata.sqlite";
     }
 
 }
