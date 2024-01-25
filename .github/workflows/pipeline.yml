@@ -23,6 +23,10 @@ jobs:
         run: 
           python -m pip install --upgrade pip
           pip install -r project/requirement.txt  # Replace with the path to your requirements file
+
+      - name: Install jayvee dependencies
+        run: 
+          jayvee npm install -g @jvalue/jayvee-interpreter@0.2.0     
               
       - name: Run MADE Pipeline
         run: 
