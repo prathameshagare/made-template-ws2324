@@ -1,2 +1,2 @@
 #!/bin/bash
-jv pipeline.jv
+jayvee project/pipeline.jv
