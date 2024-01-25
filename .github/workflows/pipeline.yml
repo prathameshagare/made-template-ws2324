@@ -20,7 +20,23 @@ jobs:
       - name: Install jayvee 
         run: 
           npm install -g @jvalue/jayvee-interpreter@0.2.0
+
+      # Install python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: 
+          python -m pip install --upgrade pip
+          pip install -r project/requirements.txt
                
       - name: Run MADE Pipeline
         run: 
             bash project/pipeline.sh 
+
+      - name: Run MADE Automated test
+        run: 
+            bash project/test.sh
+            
